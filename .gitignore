@@ -1,0 +1,62 @@
+# ModelSim/QuestaSim generated files and directories
+work/
+transcript
+vsim.wlf
+*.wlf
+
+# ModelSim project files
+*.mpf
+*.mti
+*.cr.mti
+
+# Compiled libraries
+*.qdb
+*.qpg
+*.qtl
+_info
+_vmake
+_lib.qdb
+_lib*.qdb
+_lib*.qpg
+_lib*.qtl
+
+# Temporary files
+_temp/
+_tempmsg/
+*_lock
+
+# Optimization directories
+@_opt/
+@_opt*/
+_opt/
+_opt*/
+
+# Log files
+*.log
+
+# Coverage files
+*.ucdb
+
+# Waveform files
+*.vcd
+*.fsdb
+
+# Backup files
+*~
+*.bak
+*.orig
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor temporary files
+*.swp
+*.swo
+*~
+
+# Python cache (if using Python scripts)
+__pycache__/
+*.pyc
+*.pyo
