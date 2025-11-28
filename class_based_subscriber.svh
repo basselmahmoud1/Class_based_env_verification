@@ -1,41 +1,59 @@
 class class_based_subscriber extends class_base;
-    // make instance of the transaction class ("should be passed from the monitor")
-    class_based_transaction subscriber_transc ;
-    // instantiate mailbox
+    class_based_transaction subscriber_transc;
     mailbox #(class_based_transaction) mon2subSb_mb; 
+    
+    // Simple coverage group
+    covergroup transaction_cg;
+        cp_address: coverpoint subscriber_transc.addr {
+            bins low = {[0:7]};
+            bins high = {[8:15]};
+        }
+        
+        cp_data: coverpoint subscriber_transc.data_in {
+            bins zero = {0};
+            bins all_ones = {32'hFFFFFFFF};
+            bins min_neg = {32'h80000000};
+            bins max_pos = {32'h7FFFFFFF};
+        }
+        
+        cp_EN: coverpoint subscriber_transc.EN;
+        cp_RW: coverpoint subscriber_transc.RW;
+        cp_rst: coverpoint subscriber_transc.rst;
+        
+        // Cross coverage
+        cross_addr_rw: cross cp_address, cp_RW;
+        cross_data_rw: cross cp_data, cp_RW;
+    endgroup
+    
     function new();
         subscriber_transc = new();
+        mon2subSb_mb = new(1);
+        transaction_cg = new();
     endfunction 
     
-    task recieve_transc (output class_based_transaction transc);
+    task recieve_transc(output class_based_transaction transc);
         `ifdef DEBUG
-            $display("-------- IAM in the Subscriber and going to Wait for the transaction --------");
+            $display("[%0t] [SUBSCRIBER] Waiting for transaction", $time);
         `endif 
-            mon2subSb_mb.get(transc);
-        `ifdef DEBUG
-            $display("-------- IAM in the Subscriber and recieved the transaction --------");
-        `endif 
+        mon2subSb_mb.get(transc);
     endtask
-    //Questin? --> Who will trigger the run task ?
-    // answer is the monitor will fork it  
-    task run ();
+    
+    // Display coverage report
+    function void display_coverage();
+        $display("\n========== COVERAGE REPORT ==========");
+        $display("Total Coverage: %.2f%%", transaction_cg.get_coverage());
+        $display("=====================================\n");
+    endfunction
+    
+    task run();
         forever begin 
-            // Recive the transaction form the monitor "BLOCKS on the transaction form the monitor" 
             recieve_transc(subscriber_transc);
+            
             `ifdef DEBUG
-                    $display("-------- IAM in the Subscriber and going to sample data --------");
+                subscriber_transc.display("[SUBSCRIBER]");
             `endif 
-            // Sample data Code :: 
-                    $display("-------- IAM in the Subscriber and Blablablabal--------");
-
-            `ifdef DEBUG
-                    $display("-------- IAM in the Subscriber and Finished Data Sampling --------");
-            `endif
-            // i think No one is intereset if i have finished or not !  
-            // yes since this task doesnt take time 
+            
+            transaction_cg.sample();
         end
-        `ifdef DEBUG
-                    $display("-------- IAM in the Subscriber and Subscriber DIED (there might be racing)--------");
-        `endif
     endtask
-endclass 
+endclass

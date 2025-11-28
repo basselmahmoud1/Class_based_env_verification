@@ -1,6 +1,6 @@
 class class_based_env extends class_base;
     // instantiate  sequencer
-    class_based_sequncer seqencer_handle ; 
+    class_based_sequencer seqencer_handle ; 
     // instantiate  Driver 
     class_based_driver dirver_handle ; 
     // instantiate  Monitor
@@ -65,4 +65,9 @@ class class_based_env extends class_base;
                     $display("-------- IAM in the ENV and ENV DIED (there might be racing)--------");
         `endif
     endtask 
+    
+    // Report function to display scoreboard results
+    function void report();
+        sb_handle.report();
+    endfunction
 endclass //class_based_env extends superClass

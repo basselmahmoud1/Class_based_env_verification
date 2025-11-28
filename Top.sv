@@ -27,7 +27,8 @@ module top ();
     // Print some logs after the sim finishes 
     final begin
         $display(" SIM Finished successfully ");
-        // print some how the correct and the error counts    
+        // print some how the correct and the error counts
+        env.report();    
     end  
 
 endmodule 

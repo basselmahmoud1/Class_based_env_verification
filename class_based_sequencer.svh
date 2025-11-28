@@ -1,53 +1,78 @@
-class class_based_sequncer extends class_base;
-    
-    // instantiate mailbox
+class class_based_sequencer extends class_base;
+    // Mailbox to driver
     mailbox #(class_based_transaction) seq2drv_mb;
-    // instantiate  transaction (it isnt waiting for any one to pass the transaction)!!! 
-    class_based_transaction seq_transc ;
-
-    function new();
+    
+    // Transaction instance
+    class_based_transaction seq_transc;
+    
+    // Number of transactions to generate
+    int num_transactions = 100;
+    
+   
+    
+    // Constructor
+    function new(mailbox #(class_based_transaction) mb = null);
+        if (mb == null) begin
+            seq2drv_mb = new();
+        end else begin
+            seq2drv_mb = mb;
+        end
         seq_transc = new();
-        seq2drv_mb = new(1);
-    endfunction 
-
-    task send_transc (input class_based_transaction transc);
         `ifdef DEBUG
-                    $display("-------- IAM in the SEQUENCER and Sending the transaction to the Driver --------");
+            $display("-------- IAM in the SEQUENCER and Created --------");
         `endif
-            seq2drv_mb.put(transc);
+    endfunction
+    
+    // Task to send one transaction
+    task send_transaction();
+        if (!seq_transc.randomize()) begin
+            $error("[SEQUENCER] Randomization failed!");
+        end
+        
         `ifdef DEBUG
-                    $display("-------- IAM in the SEQUENCER and Sent the transaction to the Driver --------");
+            $display("-------- IAM in the SEQUENCER and Sending the transaction to the Driver --------");
+        `endif
+        
+        seq2drv_mb.put(seq_transc);
+        
+        `ifdef DEBUG
+            $display("-------- IAM in the SEQUENCER and Sent the transaction to the Driver --------");
         `endif
     endtask
-
-    task run ();
-        repeat(100) begin
-            // creat a new transaction 
+    
+    // Main run task - generates transactions
+    task run();
+        `ifdef DEBUG
+            $display("-------- IAM in the SEQUENCER and Started --------");
+        `endif
+        
+        // Generate reset transactions first
+        repeat(5) begin
+            seq_transc.rst.rand_mode(0);
+            seq_transc.rst = 1;
+            if (!seq_transc.randomize()) $error("[SEQUENCER] Randomization failed!");
+            seq2drv_mb.put(seq_transc);
+            @(finished_monitoring);
+             seq_transc.rst.rand_mode(1);
+        end
+        
+        // Generate normal random transactions
+        repeat(num_transactions) begin
             `ifdef DEBUG
-                    $display("############################## NEW iteration ################################################");
+                $display("############################## NEW iteration ################################################");
             `endif
-            seq_transc = new();
-            randomize_transc();
-            // send the transaction to the Driver
-            send_transc(seq_transc);
-            // something that prevent the sequencer from re-randomization again unitl the Sb finish checking the data
+            send_transaction();
+            // Wait until monitoring is finished before next iteration
             @(finished_monitoring);
             `ifdef DEBUG
-                    $display("##############################  iteration Ended  ################################################");
+                $display("##############################  iteration Ended  ################################################");
             `endif
         end
-        // end the simulation 
-        $finish ; 
-    endtask
-
-    task randomize_transc ();
+        
         `ifdef DEBUG
-                    $display("-------- IAM in the SEQUENCER and Starting randomizing --------");
+            $display("-------- IAM in the SEQUENCER and Completed all transactions --------");
         `endif
-            // randomize the data
-            assert(seq_transc.randomize());
-        `ifdef DEBUG
-                    $display("-------- IAM in the SEQUENCER and Finished randomization --------");
-        `endif
+        $finish;
     endtask
-endclass 
+    
+endclass //class_based_sequencer

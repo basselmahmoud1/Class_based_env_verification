@@ -76,25 +76,3 @@ class class_based_driver extends class_base ;
     endtask  
 endclass
     
-    
-    
-    
-    
-    
-    
-    // task get_transaction_handle ();
-    //     `ifdef DEBUG
-    //         $display("-------- IAM in the Driver and going to get the new transaction handle --------");
-    //     `endif 
-        
-    //     if(FIFO_trans_handle.size == 0)
-    //         $error("FAILD to get Transaction :Passing Queue of size 0 to the driver");
-    //     else 
-    //         driver_transc = FIFO_trans_handle.pop_front();
-    //     if(driver_transc == null)
-    //         $error("FAILD to get Transaction :POPing transaction of null to the driver");
-        
-    //     `ifdef DEBUG
-    //         $display("-------- IAM in the Driver and GOT the new transaction handle --------");
-    //     `endif 
-    // endtask
